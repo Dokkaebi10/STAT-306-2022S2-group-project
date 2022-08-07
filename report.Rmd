@@ -52,12 +52,18 @@ plot(date, dataset$NHPI, main="Line graph of Monthly NHPI",
 
 
 ```{r}
-plot(dataset$Interest^2, dataset$NHPI, main="Scatterplot of NHPI against Mortgage Rate",
+plot(dataset$Interest, dataset$NHPI, main="Scatterplot of NHPI against Mortgage Rate",
   xlab="Mortgage Rate (%)", ylab="NHPI",
   )
 ```
 Figure 2
 TODO: explain why we need to transform Mortgage Rate based on this. It seems like a quadratic curve centered around 7.
+
+```{r}
+cor(dataset$NHPI, dataset$Interest)
+cor(dataset$NHPI, dataset$Interest^2)
+cor(dataset$NHPI, log(dataset$Interest))
+```
 
 
 ```{r}
@@ -325,6 +331,34 @@ predict.interval(model.interaction, nw.inter, data.frame(CPI=155.9, Immigrants=2
 TODO: The forecasts cannot be directly compared evaluated on the prediction errors. So focus on the standard errors instead.
 
 
+### Akaike Information Criterion (AIC)
+
+```{r}
+AIC(model.fl)
+AIC(model.interaction)
+AIC(model.quad)
+```
+
+TODO: I am not too sure about the wording here.
+
+The quadratic model has the lowest AIC among the three models. It implies that the quadratic model has the smallest prediction error.
+
+
+
+## Discussion
+
+The minimum in the quadratic model in regard to $Interest$ is $c - b_{Interest}^2 / (4 \cdot b_{Interest^2})$ where $c$ is a term determined by other coefficients and predictor variables. $(-b_{Interest} + \sqrt(-(-1 + b_{Interest^2}^2) b_{Interest}^2))/(2 b_{Interest^2})$.
+
+```{r}
+b_Interest <- model.quad$coefficients['Interest']
+b_Interest2 <- model.quad$coefficients['I(Interest^2)']
+
+interest.at.min <- (-b_Interest + sqrt(-(-1+b_Interest2^2) * b_Interest^2))/ (2 * b_Interest2)
+```
+Therefore, the model suggests the 5-year mortgage rate to achieve the minimum NHPI is `r round(interest.at.min, 3)` %. This is unintuitive as home price is expected to continue to decline with higher interest rates.
+
+
+TODO: Given the 
 
 TODO: choose the final model.
 
