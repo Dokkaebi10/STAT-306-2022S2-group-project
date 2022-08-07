@@ -1746,9 +1746,9 @@ this. It seems like a quadratic curve centered around 7.</p>
 <p>What is wrong with the tail? Covid, that’s what. The jump happened in
 March 2020. TODO: Maybe highlight the pandemic era data with a different
 color.</p>
-<pre class="r"><code>library(rgl)</code></pre>
-<pre><code>## Warning: package &#39;rgl&#39; was built under R version 4.0.5</code></pre>
-<pre class="r"><code>plot3d(z = dataset$NHPI, y = dataset$Earnings, x = date)</code></pre>
+<pre class="r"><code>library(rgl)
+
+plot3d(z = dataset$NHPI, y = dataset$Earnings, x = date)</code></pre>
 <div id="collinearity" class="section level3">
 <h3>Collinearity</h3>
 <p>We measured the collinearity with VIF.</p>
@@ -1891,7 +1891,6 @@ quadratic model.</p>
 independence of data. The Durbin-Watson statistic was used to measure
 the serial correlation of our model <a href="#references">[2]</a>.</p>
 <pre class="r"><code>library(lmtest)</code></pre>
-<pre><code>## Warning: package &#39;lmtest&#39; was built under R version 4.0.5</code></pre>
 <pre><code>## Loading required package: zoo</code></pre>
 <pre><code>## 
 ## Attaching package: &#39;zoo&#39;</code></pre>
@@ -2046,8 +2045,6 @@ predict.interval &lt;- function(x, covm, newdata){
 
 # June
 predict.interval(model.quad, nw.quad, data.frame(CPI=152.9, Immigrants=226203, Earnings=1159.85, Interest=1.75))</code></pre>
-<pre><code>## Warning in data.frame(fit = fit, interval = interval, se = se): row names were
-## found from a short variable and have been discarded</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["fit"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["interval"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"125.7726","2":"110.5189","3":"7.742361"},{"1":"125.7726","2":"141.0262","3":"7.742361"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -2055,8 +2052,6 @@ predict.interval(model.quad, nw.quad, data.frame(CPI=152.9, Immigrants=226203, E
 </div>
 <pre class="r"><code># July with imputed CPI and Earnings (assuming every stays the same except for the interest rate)
 predict.interval(model.quad, nw.quad, data.frame(CPI=155.9, Immigrants=226203, Earnings=1159.85, Interest=2.75))</code></pre>
-<pre><code>## Warning in data.frame(fit = fit, interval = interval, se = se): row names were
-## found from a short variable and have been discarded</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["fit"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["interval"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"125.041","2":"113.7833","3":"5.714099"},{"1":"125.041","2":"136.2986","3":"5.714099"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -2064,8 +2059,6 @@ predict.interval(model.quad, nw.quad, data.frame(CPI=155.9, Immigrants=226203, E
 </div>
 <pre class="r"><code># June
 predict.interval(model.fl, nw.fl, data.frame(CPI=152.9, Immigrants=226203, Earnings=1159.85, Interest=1.75))</code></pre>
-<pre><code>## Warning in data.frame(fit = fit, interval = interval, se = se): row names were
-## found from a short variable and have been discarded</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["fit"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["interval"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"125.9675","2":"119.3358","3":"3.366086"},{"1":"125.9675","2":"132.5992","3":"3.366086"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -2073,8 +2066,6 @@ predict.interval(model.fl, nw.fl, data.frame(CPI=152.9, Immigrants=226203, Earni
 </div>
 <pre class="r"><code># July with imputed CPI and Earnings (assuming every stays the same except for the interest rate)
 predict.interval(model.fl, nw.fl, data.frame(CPI=155.9, Immigrants=226203, Earnings=1159.85, Interest=2.75))</code></pre>
-<pre><code>## Warning in data.frame(fit = fit, interval = interval, se = se): row names were
-## found from a short variable and have been discarded</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["fit"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["interval"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"130.3142","2":"123.1322","3":"3.64536"},{"1":"130.3142","2":"137.4961","3":"3.64536"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -2082,8 +2073,6 @@ predict.interval(model.fl, nw.fl, data.frame(CPI=155.9, Immigrants=226203, Earni
 </div>
 <pre class="r"><code># June
 predict.interval(model.interaction, nw.inter, data.frame(CPI=152.9, Immigrants=226203, Earnings=1159.85, Interest=1.75))</code></pre>
-<pre><code>## Warning in data.frame(fit = fit, interval = interval, se = se): row names were
-## found from a short variable and have been discarded</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["fit"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["interval"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"116.9696","2":"108.3616","3":"4.369201"},{"1":"116.9696","2":"125.5776","3":"4.369201"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
@@ -2091,8 +2080,6 @@ predict.interval(model.interaction, nw.inter, data.frame(CPI=152.9, Immigrants=2
 </div>
 <pre class="r"><code># July with imputed CPI and Earnings (assuming every stays the same except for the interest rate)
 predict.interval(model.interaction, nw.inter, data.frame(CPI=155.9, Immigrants=226203, Earnings=1159.85, Interest=2.75))</code></pre>
-<pre><code>## Warning in data.frame(fit = fit, interval = interval, se = se): row names were
-## found from a short variable and have been discarded</code></pre>
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
 {"columns":[{"label":["fit"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["interval"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["se"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"121.3481","2":"111.9506","3":"4.769923"},{"1":"121.3481","2":"130.7456","3":"4.769923"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
