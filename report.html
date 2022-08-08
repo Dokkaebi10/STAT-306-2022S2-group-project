@@ -2109,26 +2109,29 @@ implies that the quadratic model has the smallest prediction error.</p>
 </div>
 <div id="discussion" class="section level2">
 <h2>Discussion</h2>
-<p>The minimum in the quadratic model in regard to <span class="math inline">\(Interest\)</span> is <span class="math inline">\(c
-- b_{Interest}^2 / (4 \cdot b_{Interest^2})\)</span> where <span class="math inline">\(c\)</span> is a term determined by other
-coefficients and predictor variables. <span class="math inline">\((-b_{Interest} + \sqrt(-(-1 + b_{Interest^2}^2)
-b_{Interest}^2))/(2 b_{Interest^2})\)</span>.</p>
+<p>The minimum in the quadratic model is at <span class="math inline">\(Interest = \frac{-b_{Interest}}{2 \cdot
+b_{Interest^2}}\)</span>. Note that <span class="math inline">\(b_{Interest^2}\)</span> positive.</p>
 <pre class="r"><code>b_Interest &lt;- model.quad$coefficients[&#39;Interest&#39;]
 b_Interest2 &lt;- model.quad$coefficients[&#39;I(Interest^2)&#39;]
 
-interest.at.min &lt;- (-b_Interest + sqrt(-(-1+b_Interest2^2) * b_Interest^2))/ (2 * b_Interest2)</code></pre>
+interest.at.min &lt;- -b_Interest / (2 * b_Interest2)</code></pre>
 <p>The model suggests the 5-year mortgage rate to achieve the minimum
-NHPI is 5.136 % if all other predictor variables are held constant. This
-is unintuitive as home price is expected to continue to decline with
-higher interest rates. This does not necessarily mean the model is
-biased. There have been periods of rapidly rising NHPI through interest
-hikes in the 80’s and 2000’s. <strong>TODO: refer to the figure
-below.</strong> We should also consider the fact that interest rates are
-largely controlled by the Bank of Canada, and are raised in response
-rising costs including housing costs. <strong>TODO: Please find a
-reference for this.</strong> Hence, high interest rates past a threshold
-may be associated with high home price, and our quadratic model may
-reflect such tendencies.</p>
+NHPI is 3.571 % if all other predictor variables are held constant. The
+positive correlation is unintuitive as home price is expected to
+continue to decline with higher interest rates. This does not
+necessarily mean the model is biased. There have been periods of rapidly
+rising NHPI through interest hikes in the 80’s and 2000’s. <strong>TODO:
+refer to the figure below.</strong> However, the mortgage rate at the
+partial minimum is close to the historic low of 3.2%, and may imply a
+bias due to a limited range of interest rates in the data. We should
+also consider the fact that interest rates are largely controlled by the
+Bank of Canada, and are raised in response rising costs including
+housing costs. <strong>TODO: Please find a reference for this.</strong>
+Furthermore, the effects of raising interest rates to housing cost may
+come with significant delays. Hence, high interest rates past a
+threshold may be associated with high home price, and our quadratic
+model may reflect such tendencies. We could improve the future models
+by</p>
 <pre class="r"><code>historical &lt;- read.csv(&#39;historical.csv&#39;)
 historical$Date &lt;- as.Date(paste(historical$Date,&quot;-01&quot;,sep=&quot;&quot;))</code></pre>
 <pre class="r"><code>ggplot(historical, aes(Date, text=&quot;Date (monthly)&quot;)) + 

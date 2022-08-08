@@ -347,15 +347,15 @@ The quadratic model has the lowest AIC among the three models. It implies that t
 
 ## Discussion
 
-The minimum in the quadratic model in regard to $Interest$ is $c - b_{Interest}^2 / (4 \cdot b_{Interest^2})$ where $c$ is a term determined by other coefficients and predictor variables. $(-b_{Interest} + \sqrt(-(-1 + b_{Interest^2}^2) b_{Interest}^2))/(2 b_{Interest^2})$.
+The minimum in the quadratic model is at $Interest = \frac{-b_{Interest}}{2 \cdot b_{Interest^2}}$. Note that $b_{Interest^2}$ positive.
 
 ```{r}
 b_Interest <- model.quad$coefficients['Interest']
 b_Interest2 <- model.quad$coefficients['I(Interest^2)']
 
-interest.at.min <- (-b_Interest + sqrt(-(-1+b_Interest2^2) * b_Interest^2))/ (2 * b_Interest2)
+interest.at.min <- -b_Interest / (2 * b_Interest2)
 ```
-The model suggests the 5-year mortgage rate to achieve the minimum NHPI is `r round(interest.at.min, 3)` % if all other predictor variables are held constant. This is unintuitive as home price is expected to continue to decline with higher interest rates. This does not necessarily mean the model is biased. There have been periods of rapidly rising NHPI through interest hikes in the 80's and 2000's. **TODO: refer to the figure below.** We should also consider the fact that interest rates are largely controlled by the Bank of Canada, and are raised in response rising costs including housing costs. **TODO: Please find a reference for this.** Hence, high interest rates past a threshold may be associated with high home price, and our quadratic model may reflect such tendencies.
+The model suggests the 5-year mortgage rate to achieve the minimum NHPI is `r round(interest.at.min, 3)` % if all other predictor variables are held constant. The positive correlation is unintuitive as home price is expected to continue to decline with higher interest rates. This does not necessarily mean the model is biased. There have been periods of rapidly rising NHPI through interest hikes in the 80's and 2000's. **TODO: refer to the figure below.**  However, the mortgage rate at the partial minimum is close to the historic low of `r min(dataset$Interest)`%, and may imply a bias due to a limited range of interest rates in the data.  We should also consider the fact that interest rates are largely controlled by the Bank of Canada, and are raised in response rising costs including housing costs. **TODO: Please find a reference for this.** Furthermore, the effects of raising interest rates to housing cost may come with significant delays. Hence, high interest rates past a threshold may be associated with high home price, and our quadratic model may reflect such tendencies. We could improve the future models by 
 
 ```{r}
 historical <- read.csv('historical.csv')
