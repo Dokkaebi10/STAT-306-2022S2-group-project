@@ -119,6 +119,8 @@ TODO: justify based on the Q-Q plots of the fully linear model, and the model wi
 
 An interaction terms is added to our model to address the high collinearity of CPI and Earnings.
 
+
+
 ### Model Selection with Exhaustive Search
 
 
@@ -364,6 +366,7 @@ historical$Date <- as.Date(paste(historical$Date,"-01",sep=""))
 
 ```{r}
 ggplot(historical, aes(Date, text="Date (monthly)")) + 
+  ggtitle("Historical NHPI and 5-Year Mortgage Rate") + theme(plot.title = element_text(hjust = 0.5)) +
   geom_line(aes(y = NHPI, colour = "NHPI")) + 
   geom_line(aes(y = Interest*10, colour = "5-Year Mortgage Rate")) + 
   scale_y_continuous(
@@ -379,8 +382,9 @@ TODO: choose the final model.
 
 TODO: Summarize the final model. Use the results from coeftest.
 
-## Conclusion
 
+
+## Conclusion
 
 TODO: Which was the most significant predictor? The government can directly control the interest rate, and immigration. It can also affect average earnings to some degree. Which one would be the best way to lower housing price if political considerations were not a concern? Can we predict the price trend in the future based on the Bank of Canada's recent decisions to increase the interest rate?
 
