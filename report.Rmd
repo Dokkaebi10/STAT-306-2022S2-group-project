@@ -49,43 +49,89 @@ plot(date, dataset$NHPI, main="Line graph of Monthly NHPI",
   xlab="Date", ylab="NHPI", type = 'l',
   )
 ```
-
-
-```{r}
-plot(dataset$Interest, dataset$NHPI, main="Scatterplot of NHPI against Mortgage Rate",
-  xlab="Mortgage Rate (%)", ylab="NHPI",
-  )
-```
-Figure 2
-TODO: explain why we need to transform Mortgage Rate based on this. It seems like a quadratic curve centered around 7.
-
-```{r}
-cor(dataset$NHPI, dataset$Interest)
-cor(dataset$NHPI, dataset$Interest^2)
-cor(dataset$NHPI, log(dataset$Interest))
-```
-
-
 ```{r}
 plot(dataset$CPI, dataset$NHPI, main="Scatterplot of NHPI against CPI", 
   xlab="CPI", ylab="NHPI",
   )
 ```
+
+```{r}
+plot(date, dataset$CPI, main="CPI Over Time",
+  ylab="CPI", xlab="Time (monthly)", type = "l"
+  )
+```
+
+
+
+
+```{r}
+plot(dataset$Interest, dataset$NHPI, main="Scatterplot of NHPI against 5-Year Mortgage Rate",
+  xlab="Mortgage Rate (%)", ylab="NHPI",
+  )
+```
+
+TODO: explain why we need to transform Mortgage Rate based on this. It seems like a quadratic curve centered around 7. Defend it based on the correlations against NHPI as well.
+
+```{r}
+cor(dataset$NHPI, dataset$Interest)
+cor(dataset$NHPI, log(dataset$Interest))
+cor(dataset$NHPI, dataset$Interest^2)
+cor(dataset$NHPI, (dataset$Interest-7)^2)
+```
+
+
+
+
+```{r}
+plot(date, dataset$Interest, main="5-Year Mortgage Rate Over Time",
+  ylab="Mortgage Rate (%)", xlab="Time (monthly)", type = "l"
+  )
+```
+
+Because interest rates are mostly set by the Bank of Canada, the changes appear somewhat erratic.
+
+
+
+
+
+
+
+
+
+
+
+Data in
 ```{r}
 plot(dataset$Immigrants, dataset$NHPI, main="Scatterplot of NHPI against Population Growth due to Immigration", 
   xlab="Population Growth due to Immigration between Two Preceding Calendar Years", ylab="NHPI",
   )
 ```
+
+
 ```{r}
-plot(dataset$Earnings, dataset$NHPI, main="Scatterplot of NHPI against Average Weekly Employee Earnings", sub="Figure 5",
+plot(date, dataset$Immigrants, main="Population Increase Due to Immigrations between Preceding Two years",
+  ylab="Immigrants", xlab="Time (monthly)", type = "l"
+  )
+```
+
+Due to the lack of monthly data on immigration provided by Statistics Canada, the data was imputed by applying the yearly data flatly across calendar years. The predictor variable itself doesn't have a strong linear pattern, but seems to have been generally increasing over the last two decades.
+
+
+```{r}
+plot(dataset$Earnings, dataset$NHPI, main="Scatterplot of NHPI against Average Weekly Employee Earnings",
   xlab="Average Weekly Employee Earnings", ylab="NHPI",
   )
 ```
 
-What is wrong with the tail? Covid, that's what. The jump happened in March 2020.
+We observe a sudden jump in the earnings. The jump happened in March 2020, and is likely due to the pandemic. 
 TODO: Maybe highlight the pandemic era data with a different color.
+TODO: Add a reference about the wage jump at the time if possible.
 
-
+```{r}
+plot(date, dataset$Earnings, main="Average Weekly Employee Earnings Over Time",
+  ylab="Average Weekly Employee Earnings", xlab="Time (monthly)", type = "o"
+  )
+```
 
 
 ```{r}
@@ -245,7 +291,7 @@ qqline(model.fl$residuals, col = "steelblue")
 
 ```
 
-The error distribution of the fully linear model is light-tailed, and the normality-of-errors assumption may not hold. Because the right tail is light, it may produce smaller errors for future predictions.
+The error distribution of the fully linear model is light-tailed, and the normality-of-errors assumption may not hold. While The simplicity of the model is a positive attribute, the model is too light-tailed on the right side, and undermines the model's value for making forecasts.
 
 
 ```{r}
@@ -255,16 +301,18 @@ qqline(model.interaction$residuals, col = "steelblue")
 ```
 
 
+
 ```{r}
 qqnorm(model.quad$residuals, frame = FALSE)
 qqline(model.quad$residuals, col = "steelblue")
 
 ```
+
 The distribution of the residual is heavy-tailed, but not extremely so. The normal error assumption seems to mostly hold.
 
 
 ### Forecast Tests with a Holdout Set
-We cannot do a cross-validation on a time series data. We instead train our model on the first 80% of the data, and test it on the last 20% of the data. But this may not be a valid way to evaluate the model involving a time series. TODO: why not?
+We cannot do a cross-validation on a time series data. We instead train our model on the first 80% of the data, and test it on the last 20% of the data. But this may not be a valid way to evaluate the model involving a time series. The TODO: why not?
 The root mean square prediction errors are used to evauate the three models.
 
 ```{r}
@@ -301,13 +349,13 @@ predict.interval <- function(x, covm, newdata){
     
     interval <- c(-1,1) * se * qt(.975, length(dataset$NHPI) - 5 - 1) + fit
     
-    return(data.frame(fit=fit, interval=interval, se=se))
+    return(data.frame(lower=interval[1], fit=fit, upper=interval[2], se=se))
   }
 
 # June
 predict.interval(model.quad, nw.quad, data.frame(CPI=152.9, Immigrants=226203, Earnings=1159.85, Interest=1.75))
 
-# July with imputed CPI and Earnings (assuming every stays the same except for the interest rate)
+# July with imputed CPI and Earnings (assuming all predictor variables stay the same except for the interest rate)
 predict.interval(model.quad, nw.quad, data.frame(CPI=155.9, Immigrants=226203, Earnings=1159.85, Interest=2.75))
 
 ```
@@ -317,7 +365,7 @@ predict.interval(model.quad, nw.quad, data.frame(CPI=155.9, Immigrants=226203, E
 # June
 predict.interval(model.fl, nw.fl, data.frame(CPI=152.9, Immigrants=226203, Earnings=1159.85, Interest=1.75))
 
-# July with imputed CPI and Earnings (assuming every stays the same except for the interest rate)
+# July with imputed CPI and Earnings (assuming all predictor variables stay the same except for the interest rate)
 predict.interval(model.fl, nw.fl, data.frame(CPI=155.9, Immigrants=226203, Earnings=1159.85, Interest=2.75))
 ```
 
@@ -326,7 +374,7 @@ predict.interval(model.fl, nw.fl, data.frame(CPI=155.9, Immigrants=226203, Earni
 # June
 predict.interval(model.interaction, nw.inter, data.frame(CPI=152.9, Immigrants=226203, Earnings=1159.85, Interest=1.75))
 
-# July with imputed CPI and Earnings (assuming every stays the same except for the interest rate)
+# July with imputed CPI and Earnings (assuming all predictor variables stay the same except for the interest rate)
 predict.interval(model.interaction, nw.inter, data.frame(CPI=155.9, Immigrants=226203, Earnings=1159.85, Interest=2.75))
 ```
 
@@ -357,7 +405,7 @@ b_Interest2 <- model.quad$coefficients['I(Interest^2)']
 
 interest.at.min <- -b_Interest / (2 * b_Interest2)
 ```
-The model suggests the 5-year mortgage rate to achieve the minimum NHPI is `r round(interest.at.min, 3)` % if all other predictor variables are held constant. The positive correlation is unintuitive as home price is expected to continue to decline with higher interest rates. This does not necessarily mean the model is biased. There have been periods of rapidly rising NHPI through interest hikes in the 80's and 2000's. **TODO: refer to the figure below.**  However, the mortgage rate at the partial minimum is close to the historic low of `r min(dataset$Interest)`%, and may imply a bias due to a limited range of interest rates in the data.  We should also consider the fact that interest rates are largely controlled by the Bank of Canada, and are raised in response rising costs including housing costs. **TODO: Please find a reference for this.** Furthermore, the effects of raising interest rates to housing cost may come with significant delays. Hence, high interest rates past a threshold may be associated with high home price, and our quadratic model may reflect such tendencies. We could improve the future models by 
+The model suggests the 5-year mortgage rate to achieve the minimum NHPI is `r round(interest.at.min, 3)` % if all other predictor variables are held constant. The positive correlation is unintuitive as home price is expected to continue to decline with higher interest rates. This does not necessarily mean the model is biased. There have been periods of rapidly rising NHPI through interest hikes in the 80's and 2000's. **TODO: refer to the figure below.**  However, the mortgage rate at the partial minimum is close to the historic low of `r min(dataset$Interest)`%, and may imply a bias due to a limited range of interest rates in the data.  We should also consider the fact that interest rates are largely controlled by the Bank of Canada, and are raised in response rising costs including housing costs. **TODO: Please find a reference for this.** Furthermore, the effects of raising interest rates to housing cost may come with significant delays. Hence, high interest rates past a threshold may be associated with high home price, and our quadratic model may reflect such tendencies. In future studies, we could explore the possible causal effect of interest rates on housing prices by introducing delays to interest rates.
 
 ```{r}
 historical <- read.csv('historical.csv')
