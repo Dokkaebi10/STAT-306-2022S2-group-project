@@ -25,7 +25,7 @@ library(gt)
 ## Introduction
 
 
-With increasingly unaffordable housing having become a chronic social issue in Canada over the last two decades, the factors that contribute to rising housing cost have been in focus, and hotly debated among policy makers and voters alike. Here, we would like to measure the relative importance of the commonly referred contributors of rising cost of housing: interest rate, immigration, earnings increases, and general increase in consumer prices. We will explore and quantify the significance of the predictors or drivers of rising housing price above. Furthermore, by better understanding possible causes and predictors of the present day problem, we aim to better inform policymakers and their electorate on the most important issues underlying the unaffordable housing markets of the metropolitan Canada.
+With increasingly unaffordable housing having become a chronic social issue in Canada over the last two decades, the factors that contribute to rising housing cost have been in focus, and hotly debated among policy makers and voters alike. Here, we would like to measure the relative importance of the commonly referred contributors of rising cost of housing: interest rate, immigration, earnings increases, and general increase in consumer prices. We will explore and quantify the significance of the predictors or drivers of rising housing price. Furthermore, by better understanding possible causes and predictors of the present day problem, we aim to better inform policymakers and their electorate on the most important issues underlying the unaffordable housing markets of the metropolitan Canada.
 
 
 TODO: we need some references for this introduction.
@@ -289,7 +289,7 @@ kable(nw.inter.coef) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
-When the interaction term is included, the significance of the predictor variables are preserved.
+When the interaction term is included, the significance of the predictor variables are improved overall.
 
 
 
@@ -304,7 +304,7 @@ kable(nw.quad.coef) %>%
 ```
 
 
-The predictor variables remain significant even after the correction. The lag is set at 11 months. The effect of the interest rate is the least significant.
+The predictor variables remain significant even after the correction. The lag is set at 12 months. The significance of $\text{Interest}$ and $\text{Interest}^2$ is individually quite low, but cannot be discounted since the linear and quadratic terms may still be significant when combined.
 
 
 
@@ -401,8 +401,6 @@ Because of the reasons discussed in the previous sections, tests using holdout s
 kable(data.frame(Model=model.names, AIC=c(AIC(model.fl), AIC(model.interaction), AIC(model.quad)))) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
-
-TODO: I am not too sure about the wording here.
 
 The quadratic model has the lowest AIC among the three models. It implies that the quadratic model has the smallest prediction error in general.
 

@@ -1874,7 +1874,7 @@ policy makers and voters alike. Here, we would like to measure the
 relative importance of the commonly referred contributors of rising cost
 of housing: interest rate, immigration, earnings increases, and general
 increase in consumer prices. We will explore and quantify the
-significance of the predictors or drivers of rising housing price above.
+significance of the predictors or drivers of rising housing price.
 Furthermore, by better understanding possible causes and predictors of
 the present day problem, we aim to better inform policymakers and their
 electorate on the most important issues underlying the unaffordable
@@ -3107,7 +3107,7 @@ CPI:Earnings
 </tbody>
 </table>
 <p>When the interaction term is included, the significance of the
-predictor variables are preserved.</p>
+predictor variables are improved overall.</p>
 <table class="table table-striped table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -3250,8 +3250,9 @@ CPI:Earnings
 </tbody>
 </table>
 <p>The predictor variables remain significant even after the correction.
-The lag is set at 11 months. The effect of the interest rate is the
-least significant.</p>
+The lag is set at 12 months. The significance of <span class="math inline">\(\text{Interest}\)</span> and <span class="math inline">\(\text{Interest}^2\)</span> is individually quite
+low, but cannot be discounted since the linear and quadratic terms may
+still be significant when combined.</p>
 </div>
 <div id="residuals" class="section level3">
 <h3>Residuals</h3>
@@ -3374,7 +3375,6 @@ Quadratic
 </tr>
 </tbody>
 </table>
-<p>TODO: I am not too sure about the wording here.</p>
 <p>The quadratic model has the lowest AIC among the three models. It
 implies that the quadratic model has the smallest prediction error in
 general.</p>
