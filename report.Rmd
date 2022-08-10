@@ -34,13 +34,13 @@ TODO: we need some references for this introduction.
 
 ### Variables
 
-|             Name             |                                                                                                                Description                                                                                                                |   Unit   |
-|:----------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------:|
+|     Name    |                                                               Description                                                                  |   Unit   |
+|:--------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------:|:--------:|
 | New Housing Price Index (y)     | Monthly series that measure changes over time of the selling prices of new residential houses sold by builders in the Canadian metropolitan areas. The reference period is December 2006, for which the index value is set to 100. | -        |
-| Mortgage Rate ($x_1$)           | Average annual mortgage lending rate for 5-year term. | %        |
-| Immigrants ($x_2$)              | Population growth due to the total number of immigrants to Canada between the preceding two calendar years. Immigration, Refugees and Citizenship Canada does not make immigration data with higher frequency than yearly. | -        |
+| Mortgage Rate ($x_1$) | Average annual mortgage lending rate for 5-year term. | %        |
+| Immigrants ($x_2$) | Population growth due to the total number of immigrants to Canada between the preceding two calendar years. Immigration, Refugees and Citizenship Canada does not make immigration data with higher frequency than yearly. | -        |
 | Average Weekly Earnings ($x_3$) | Average weekly earnings for all employees in Canada in Canadian dollar per week. | CAD/week |
-| Consumer Price Index ($x_4$)    | Indicator for changes in consumer prices of all goods and services experienced by Canadians. The time base is the period for which the CPI equals 100; currently this is the year 2002. | -        |
+| Consumer Price Index ($x_4$) | Indicator for changes in consumer prices of all goods and services experienced by Canadians. The time base is the period for which the CPI equals 100; currently this is the year 2002. | -        |
 
 ## Analysis
 
@@ -146,7 +146,7 @@ plot(date, dataset$Earnings, main="Average Weekly Employee Earnings Over Time",
 
 
 ```{r, echo=FALSE}
-plot3d(z = dataset$NHPI, y = dataset$Earnings, x = date)
+# plot3d(z = dataset$NHPI, y = dataset$Earnings, x = date)
 
 ```
 
@@ -162,7 +162,8 @@ ggpairs(data = dataset, cardinality_threshold=NULL)
 ```{r, echo=FALSE}
 model.fl <- lm(NHPI ~ ., dataset)
 vif <- data.frame(VIF=round(car::vif(model.fl),3))
-kable(vif)
+kable(vif) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
 TODO: explain the significance of VIF. VIF > 10 means collinearity may be a problem. The collinearity involving Earnings and CPI was addressed using an interaction term between Earnings and CPI.
@@ -194,12 +195,14 @@ abline(0,1, col='red')
 
 TODO: summary of exhaustive search result as a table of number of variables, variables, $R^2$, $R^2_{adj}$ and $C_p$. You can get them from the following.
 ```{r, echo=FALSE, results='hide'}
-kable(best_subsets$which)
+kable(best_subsets$which) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 ```{r, echo=FALSE}
 model.fl.df <- data.frame(p=seq(0,length(best_subsets$rsq)-1,1), rsq=best_subsets$rsq, adjr2=best_subsets$adjr2, cp=best_subsets$cp)
-colnames(model.fl.df) <- c("$r^2$", "$r^2_{adj}$", "$C_p$")
-kable(model.fl.df)
+colnames(model.fl.df) <- c("p", "$r^2$", "$r^2_{adj}$", "$C_p$")
+kable(model.fl.df) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
 We chose the model with 6 predictor variables including the interaction term and the quadratic term because $C_5$ is very close to the corresponding value of $p$. TODO: explain the importance of this. The model is accurate and unbiased and such.
@@ -222,18 +225,26 @@ models <- list(
   "Quadratic"     = model.quad
 )
 
-modelsummary(models)
+modelsummary(models, fmt = 5)
+```
+
+```{r, echo=FALSE}
+kable(coef(summary(model.fl))) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
 
+
 ```{r, echo=FALSE}
-# kable(coef(summary(model.interaction)))
+kable(coef(summary(model.interaction))) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
 
 
 ```{r, echo=FALSE}
-# kable(coef(summary(model.quad)))
+kable(coef(summary(model.quad))) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
 
@@ -251,22 +262,31 @@ dw <- dwtest(formula = NHPI ~ . + CPI * Earnings + I(Interest^2), data = dataset
 ```
 The Durbin-Watson statistic for our model is `r dw$statistic`, and which is close to 0 with a very small $p$ value, indicating high positive serial correlation. The standard errors of coefficients are underestimated if the data is positively serially correlated.
 
+
 ### Newey-West Standard Errors
 
-The standard errors of coefficients are underestimated due to the high serial correlation. Instead the Newey-West standard errors, both Heteorscedasticity and Autocorrelation (HAC), should be used instead [[1]](#references).
+The standard errors of coefficients are underestimated due to the high serial correlation. Instead the Newey-West standard errors, both Heteorscedasticity and Autocorrelation (HAC), should be used instead [[1]](#references). The chosen delay truncation value is 12 intervals (months).
 
 
-```{r, echo=FALSE}
-nw.fl <- NeweyWest(model.fl, lag=NULL, prewhite=FALSE, adjust=TRUE, verbose=TRUE)
-coeftest(model.fl, vcov.=nw.fl)
+```{r, echo=FALSE, results='hide'}
+nw.fl <- NeweyWest(model.fl, lag=12, prewhite=FALSE, adjust=TRUE, verbose=TRUE)
+nw.fl.coef <- as.data.frame(coeftest(model.fl, vcov.=nw.fl)[, ])
 ```
+```{r, echo=FALSE}
+kable(nw.fl.coef) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
+``` 
 
 The significance of some of the variables appear lower, and most of them appear insignificant when corrected for serial correlation.
 
 
+```{r, echo=FALSE, results='hide'}
+nw.inter <- NeweyWest(model.interaction, lag=12, prewhite=FALSE, adjust=TRUE, verbose=TRUE)
+nw.inter.coef <- as.data.frame(coeftest(model.interaction, vcov.=nw.inter)[, ])
+```
 ```{r, echo=FALSE}
-nw.inter <- NeweyWest(model.interaction, lag=NULL, prewhite=FALSE, adjust=TRUE, verbose=TRUE)
-coeftest(model.interaction, vcov.=nw.inter)
+kable(nw.inter.coef) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
 When the interaction term is included, the significance of the predictor variables are preserved.
@@ -274,9 +294,13 @@ When the interaction term is included, the significance of the predictor variabl
 
 
 
+```{r, echo=FALSE, results='hide'}
+nw.quad <- NeweyWest(model.quad, lag=12, prewhite=FALSE, adjust=TRUE, verbose=TRUE)
+nw.quad.coef <- as.data.frame(coeftest(model.quad, vcov.=nw.quad)[, ])
+```
 ```{r, echo=FALSE}
-nw.quad <- NeweyWest(model.quad, lag=NULL, prewhite=FALSE, adjust=TRUE, verbose=TRUE)
-coeftest(model.quad, vcov.=nw.quad)
+kable(nw.quad.coef) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
 
@@ -337,8 +361,8 @@ The distribution of the residual is heavy-tailed, but not extremely so. The norm
 
 
 ### Forecast Tests with a Holdout Set
-We cannot do a cross-validation on a time series data. We instead train our model on the first 80% of the data, and test it on the last 20% of the data. But this may not be a valid way to evaluate the model involving a time series. The TODO: why not?
-The root mean square prediction errors are used to evaluate the three models.
+We cannot do a cross-validation on a time series data. We instead train our model on the first 80% of the data, and test it on the last 20% of the data. The root mean square prediction errors are used to evaluate the three models. But this may not be an effective way to evaluate the model involving a time series.
+
 
 ```{r, echo=FALSE}
 train <- 1:as.integer(dim(dataset)[1]*.8)
@@ -361,13 +385,33 @@ rmse$RMSE[3] <- sqrt(sum((dataset$NHPI[-train] - predict(reg, dataset[-train,]))
 ```
 
 ```{r, echo=FALSE}
-kable(rmse)
+kable(rmse) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
+
+The model with an interaction term seems to perform the best. However, our data is a time series, and the holdout sets necessarily include the most recent data, which tend to be the most important data points in time series models. Furthermore, because the most recent data involves the highly unusually period of the COVID-19 pandemic, it is unlikely that we can build a strong model while excluding the most recent 20% .
+
+
+
+### Akaike Information Criterion (AIC)
+
+Because of the reasons discussed in the previous sections, tests using holdout sets may be misleading in evaluating the models. As a result, AIC is particularly valuable for choosing the best model among our three models.
+
+```{r, echo=FALSE}
+kable(data.frame(Model=model.names, AIC=c(AIC(model.fl), AIC(model.interaction), AIC(model.quad)))) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
+```
+
+TODO: I am not too sure about the wording here.
+
+The quadratic model has the lowest AIC among the three models. It implies that the quadratic model has the smallest prediction error in general.
+
 
 
 ### Forecasts Using Models
 
-The real NHPI for June 2022 was 125.9 [[4]](#references).
+One major use of time series models is to forecast response variables in the future. In this section, we attempt to forecast NHPI for June and July 2022 with imputed values.
+The real NHPI for June 2022 was 125.9 [[4]](#references). The NHPI for July 2022 has not been published yet.
 
 ```{r, echo=FALSE}
 # modified to produce a prediction interval
@@ -412,15 +456,6 @@ predict.interval(model.interaction, nw.inter, data.frame(CPI=155.9, Immigrants=2
 TODO: The forecasts cannot be directly compared evaluated on the prediction errors. So focus on the standard errors instead.
 
 
-### Akaike Information Criterion (AIC)
-
-```{r, echo=FALSE}
-kable(data.frame(Model=model.names, AIC=c(AIC(model.fl), AIC(model.interaction), AIC(model.quad))))
-```
-
-TODO: I am not too sure about the wording here.
-
-The quadratic model has the lowest AIC among the three models. It implies that the quadratic model has the smallest prediction error in general.
 
 
 
@@ -465,7 +500,7 @@ TODO: Summarize the final model. Use the results from coeftest.
 
 TODO: Which was the most significant predictor? The government can directly control the interest rate, and immigration. It can also affect average earnings to some degree. Which one would be the best way to lower housing price if political considerations were not a concern? Can we predict the price trend in the future based on the Bank of Canada's recent decisions to increase the interest rate?
 
-When adjusted for CPI and earnings, immigration and the interest rate seem to affect the NHPI in the opposite directions that they are typically associated with in the literature. High immigration lowers NHPI, and high interest rate is associated with high NHPI.
+When adjusted for CPI and earnings, immigration and the interest rate seem to affect the NHPI in the opposite directions that they are typically associated with in the literature. High immigration lowers NHPI, and high interest rate is associated with high NHPI. The population increase due to immigration is the least significant predictor of NHPI in our model. 
 
 
 
