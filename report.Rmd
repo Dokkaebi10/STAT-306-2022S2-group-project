@@ -331,7 +331,21 @@ plot(dataset$NHPI, model.quad$residuals, main="Residual plot for quadratic model
   xlab="Fitted Values", ylab="Residuals")
 ```
 
-TODO: Is there a pattern? It seems we cannot explain with all variance in NHPI with the predictors here. We may need more variables for a more complete model.
+```{r, echo=FALSE}
+ggplot(dataset, aes(date, text="Date (monthly)")) + 
+  ggtitle("Residuals over Time") + theme(plot.title = element_text(hjust = 0.5)) +
+  geom_hline(yintercept=0) +
+  geom_line(aes(y = model.fl$residuals, colour = "Fully Linear")) + 
+  geom_line(aes(y = model.interaction$residuals, colour = "With Interaction")) + 
+  geom_line(aes(y = model.quad$residuals, colour = "Quadratic with Interaction")) + 
+  scale_y_continuous(
+    "Residuals",
+  )
+```
+
+
+There seems to be patterns in residuals to the autorrelation in the form of a serial correlation in the data. we cannot explain with all variance in NHPI with the predictors here. We may need more variables for a more complete model.
+
 
 
 ```{r, echo=FALSE}
@@ -408,50 +422,66 @@ The quadratic model has the lowest AIC among the three models. It implies that t
 
 ### Forecasts Using Models
 
-One major use of time series models is to forecast response variables in the future. In this section, we attempt to forecast NHPI for June and July 2022 with imputed values.
+One major use of time series models is to forecast response variables in the future. In this section, we attempt to forecast NHPI for June and July 2022 with imputed values, and updated interest rates. All predictor variables were assumed to have remained the same since May except for the interest rate. The Newey-West standard errors were used to calculate the 95% prediction intervals.
 The real NHPI for June 2022 was 125.9 [[4]](#references). The NHPI for July 2022 has not been published yet.
 
 ```{r, echo=FALSE}
 # modified to produce a prediction interval
 predict.interval <- function(x, covm, newdata){
+    ss <- summary(x)
     tt <- delete.response(terms(x))
     m.mat <- model.matrix(tt, data=newdata)
     m.coef <- x$coef
     fit <- as.vector(m.mat %*% x$coef)
-    se <- sqrt(diag(m.mat%*%covm%*%t(m.mat)))
+    se <- sqrt(ss$sigma^2+diag(m.mat%*%covm%*%t(m.mat)))
     
-    interval <- c(-1,1) * se * qt(.975, length(dataset$NHPI) - 5 - 1) + fit
+    interval <- c(-1,1) * se * qt(.975, length(dataset$NHPI) - ss$df[2]) + fit
     
     return(data.frame(lower=interval[1], fit=fit, upper=interval[2], se=se))
   }
 
 # June
-predict.interval(model.quad, nw.quad, data.frame(CPI=152.9, Immigrants=226203, Earnings=1159.85, Interest=1.75))
+june.quad <- predict.interval(model.quad, nw.quad, data.frame(CPI=152.9, Immigrants=226203, Earnings=1159.85, Interest=1.75))
+june.quad$Model <- c("Quadratic")
+june.quad$Month <- c("June")
 
 # July with imputed CPI and Earnings (assuming all predictor variables stay the same except for the interest rate)
-predict.interval(model.quad, nw.quad, data.frame(CPI=155.9, Immigrants=226203, Earnings=1159.85, Interest=2.75))
+july.quad <- predict.interval(model.quad, nw.quad, data.frame(CPI=155.9, Immigrants=226203, Earnings=1159.85, Interest=2.75))
+july.quad$Model <- c("Quadratic")
+july.quad$Month <- c("July")
 
-```
-
-
-```{r, echo=FALSE}
 # June
-predict.interval(model.fl, nw.fl, data.frame(CPI=152.9, Immigrants=226203, Earnings=1159.85, Interest=1.75))
+june.fl <- predict.interval(model.fl, nw.fl, data.frame(CPI=152.9, Immigrants=226203, Earnings=1159.85, Interest=1.75))
+june.fl$Model <- c("Fully Linear")
+june.fl$Month <- c("June")
 
 # July with imputed CPI and Earnings (assuming all predictor variables stay the same except for the interest rate)
-predict.interval(model.fl, nw.fl, data.frame(CPI=155.9, Immigrants=226203, Earnings=1159.85, Interest=2.75))
-```
+july.fl <- predict.interval(model.fl, nw.fl, data.frame(CPI=155.9, Immigrants=226203, Earnings=1159.85, Interest=2.75))
+july.fl$Model <- c("Fully Linear")
+july.fl$Month <- c("July")
 
-
-```{r, echo=FALSE}
 # June
-predict.interval(model.interaction, nw.inter, data.frame(CPI=152.9, Immigrants=226203, Earnings=1159.85, Interest=1.75))
+june.inter <- predict.interval(model.interaction, nw.inter, data.frame(CPI=152.9, Immigrants=226203, Earnings=1159.85, Interest=1.75))
+june.inter$Model <- c("Interaction")
+june.inter$Month <- c("June")
 
 # July with imputed CPI and Earnings (assuming all predictor variables stay the same except for the interest rate)
-predict.interval(model.interaction, nw.inter, data.frame(CPI=155.9, Immigrants=226203, Earnings=1159.85, Interest=2.75))
+july.inter <- predict.interval(model.interaction, nw.inter, data.frame(CPI=155.9, Immigrants=226203, Earnings=1159.85, Interest=2.75))
+july.inter$Model <- c("Interaction")
+july.inter$Month <- c("July")
+
+pred.df <- rbind(june.fl, july.fl, june.inter, july.inter, june.quad, july.quad)
+pred.df <- pred.df[,c(5,6,1,2,3,4)]
+row.names(pred.df) <- NULL
 ```
 
-TODO: The forecasts cannot be directly compared evaluated on the prediction errors. So focus on the standard errors instead.
+
+
+```{r}
+kable(pred.df)  %>%
+  kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
+```
+Figure ?: Prediction Intervals and Errors for June and July 2022 for All Three Models.
 
 
 
@@ -485,12 +515,7 @@ ggplot(historical, aes(Date, text="Date (monthly)")) +
   )
 ```
 
-TODO: Given the 
-
-TODO: choose the final model.
-
-
-TODO: Summarize the final model. Use the results from coeftest.
+Based on the 
 
 
 
