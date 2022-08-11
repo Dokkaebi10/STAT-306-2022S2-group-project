@@ -25,10 +25,7 @@ library(gt)
 ## Introduction
 
 
-With increasingly unaffordable housing having become a chronic social issue in Canada over the last two decades, the factors that contribute to rising housing cost have been in focus, and hotly debated among policy makers and voters alike. Here, we would like to measure the relative importance of the commonly referred contributors of rising cost of housing: interest rate, immigration, earnings increases, and general increase in consumer prices. We will explore and quantify the significance of the predictors or drivers of rising housing price. Furthermore, by better understanding possible causes and predictors of the present day problem, we aim to better inform policymakers and their electorate on the most important issues underlying the unaffordable housing markets of the metropolitan Canada.
-
-
-TODO: we need some references for this introduction.
+With increasingly unaffordable housing having become a chronic social issue in Canada over the last two decades, the factors that contribute to rising housing cost have been in focus, and hotly debated among policy makers and voters alike. Here, we would like to measure the relative importance of the commonly referred contributors of rising cost of housing: interest rate, immigration, earnings increases, and general increase in consumer prices [[3]]. We will explore and quantify the significance of the predictors or drivers of rising housing price. Furthermore, by better understanding possible causes and predictors of the present day problem, we aim to better inform policymakers and their electorate on the most important issues underlying the unaffordable housing markets of the metropolitan Canada.
 
 
 
@@ -79,7 +76,7 @@ plot(dataset$Interest, dataset$NHPI, main="Scatterplot of NHPI against 5-Year Mo
   )
 ```
 
-TODO: explain why we need to transform Mortgage Rate based on this. It seems like a quadratic curve centered around 7. Defend it based on the correlations against NHPI as well.
+It seems like a quadratic curve centered around 7. Defend it based on the correlations against NHPI as well.
 
 |  Transformation  | Sample correlation (r) |
 |:----------------:|:----------------------:|
@@ -134,9 +131,8 @@ plot(dataset$Earnings, dataset$NHPI, main="Scatterplot of NHPI against Average W
   )
 ```
 
-We observe a sudden jump in the earnings. The jump happened in March 2020, and is likely due to the pandemic. 
-TODO: Maybe highlight the pandemic era data with a different color.
-TODO: Add a reference about the wage jump at the time if possible.
+We observe a sudden jump in the average weekly employee earnings. The jump happened in March 2020, and is likely due to the pandemic. 
+
 
 ```{r, echo=FALSE}
 plot(date, dataset$Earnings, main="Average Weekly Employee Earnings Over Time",
@@ -166,15 +162,13 @@ kable(vif) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
-TODO: explain the significance of VIF. VIF > 10 means collinearity may be a problem. The collinearity involving Earnings and CPI was addressed using an interaction term between Earnings and CPI.
+The VIFs CPI and Earnings is larger than 10, and therefore, the collinearity between them may be a problem.
 
 
 ### Transformation
 
-TODO: justify based on the Q-Q plots of the fully linear model, and the model with an interaction term.
 
-
-An interaction terms is added to our model to address the high collinearity of CPI and Earnings.
+An interaction terms is added to our model to address the high collinearity of CPI and Earnings. The quadratic term of Interest was introduced to improve linearizeability and sample correlation as shown in Figures 5 and 6.
 
 
 
@@ -193,7 +187,6 @@ abline(0,1, col='red')
 ```
 
 
-TODO: summary of exhaustive search result as a table of number of variables, variables, $R^2$, $R^2_{adj}$ and $C_p$. You can get them from the following.
 ```{r, echo=FALSE, results='hide'}
 kable(best_subsets$which) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
@@ -205,12 +198,11 @@ kable(model.fl.df) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
-We chose the model with 6 predictor variables including the interaction term and the quadratic term because $C_5$ is very close to the corresponding value of $p$. TODO: explain the importance of this. The model is accurate and unbiased and such.
+We chose the model with 6 predictor variables including the interaction term and the quadratic term because $C_5$ is very close to the corresponding value of $p$, and the model therefore appears the least unbiased.
 
 
 
-We test 3 models.
-A full linear model, a model with an interaction term between CPI and average weekly earnings, and a model with the same interaction term and a quadratic term for the mortgage rate. The quadratic term was added based on Figure 2, and the residual plots of the fully linear model, and the model with an interaction term.
+We created 3 candidate models. full linear Model 1, Model 2 with an interaction term between CPI and average weekly earnings, and Model 3 with the same interaction term and a quadratic term for the mortgage rate. The quadratic term was added based on Figure 2, and the residual plots of the fully linear model, and the model with an interaction term.
 
 ```{r, echo=FALSE}
 model.fl <- lm(NHPI ~ ., dataset)
@@ -220,12 +212,12 @@ model.quad <- lm(NHPI ~ . + CPI*Earnings + I(Interest^2), dataset)
 
 ```{r, echo=FALSE}
 models <- list(
-  "Fully Linear"     = model.fl,
-  "With an Interaction" = model.interaction,
-  "Quadratic"     = model.quad
+  "Model 1"     = model.fl,
+  "Model 2" = model.interaction,
+  "Model 3"     = model.quad
 )
 
-modelsummary(models, fmt = 5)
+# ms <- modelsummary(models, fmt = 5)
 ```
 
 ```{r, echo=FALSE}
@@ -249,12 +241,12 @@ kable(coef(summary(model.quad))) %>%
 
 
 
-TODO: make a note on the Adjusted R-squared. It's the largest for the quadratic model.
+The models appear excellent in terms of the significance of the predictor variables. However, they were based on a time series data, which is most likely serially correlated. Hence, we need to examine, and possibly correct for the possible autocorrelation in the data.
 
 
 ### Serial Correlation
 
-The standard assumptions of linear regression includes serial independence of data. The Durbin-Watson statistic was used to measure the serial correlation of our model [[2]](#references).
+The standard assumptions of linear regression includes serial independence of data. The Durbin-Watson statistic was used to measure the serial correlation of our model [[1]](#references).
 
 ```{r, echo=FALSE}
 
@@ -265,7 +257,7 @@ The Durbin-Watson statistic for our model is `r dw$statistic`, and which is clos
 
 ### Newey-West Standard Errors
 
-The standard errors of coefficients are underestimated due to the high serial correlation. Instead the Newey-West standard errors, both Heteorscedasticity and Autocorrelation (HAC), should be used instead [[1]](#references). The chosen delay truncation value is 12 intervals (months).
+The standard errors of coefficients are underestimated due to the high serial correlation. Instead the Newey-West standard errors, both Heteorscedasticity and Autocorrelation (HAC), should be used instead [[2]](#references). The chosen delay truncation value is 12 intervals (months).
 
 
 ```{r, echo=FALSE, results='hide'}
@@ -277,7 +269,7 @@ kable(nw.fl.coef) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ``` 
 
-The significance of some of the variables appear lower, and most of them appear insignificant when corrected for serial correlation.
+The significance of some of the variables appear much lower when corrected for autocorrelation, and most of them appear insignificant when corrected for serial correlation. This model is mostly based on the autocorrelation in the data.
 
 
 ```{r, echo=FALSE, results='hide'}
@@ -289,7 +281,7 @@ kable(nw.inter.coef) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
-When the interaction term is included, the significance of the predictor variables are improved overall.
+When the interaction term is included, the significance of the predictor variables are improved overall. The increased complexity of the model better captures the significance of the predictor variables and their interactions.
 
 
 
@@ -311,8 +303,6 @@ The predictor variables remain significant even after the correction. The lag is
 
 ### Residuals
 
-
-TODO: summarize the final linear model. Make a note on the interaction between CPI and Earnings being significant. The coefficient for the interaction is negative, which means the positive impact of earnings and CPI on NHPI is attenuated when these values changes in the same direction. In other words, if changes in average wage stay in parity with CPI, housing prices tend to be a little lower.
 
 
 ```{r, echo=FALSE}
@@ -343,8 +333,10 @@ ggplot(dataset, aes(date, text="Date (monthly)")) +
   )
 ```
 
+Figure ?: Residuals over Time of All Three Models. The lines show similar patterns to their respective residual plots.
 
-There seems to be patterns in residuals to the autorrelation in the form of a serial correlation in the data. we cannot explain with all variance in NHPI with the predictors here. We may need more variables for a more complete model.
+
+There seems to be patterns in residuals to the autorrelation in the form of a serial correlation in the data. The continuous patterns seem to arise from the fact that our data is a time series, and do not necessarily imply lack of linearizability. Still, we cannot explain with all variance in NHPI with the predictors here due to rapid, artificial shifts in variables such interest rates, which can change drastically based on the whims of the central bank. We may need more variables and average-over-time transformations for a more complete model that accounts for sudden shifts.
 
 
 
@@ -375,7 +367,7 @@ The distribution of the residual is heavy-tailed, but not extremely so. The norm
 
 
 ### Forecast Tests with a Holdout Set
-We cannot do a cross-validation on a time series data. We instead train our model on the first 80% of the data, and test it on the last 20% of the data. The root mean square prediction errors are used to evaluate the three models. But this may not be an effective way to evaluate the model involving a time series.
+We cannot do a cross-validation on a time series data. We instead train our model on the first 80% of the data, and test it on the last 20% of the data. The root mean square prediction errors are used to evaluate the three models.
 
 
 ```{r, echo=FALSE}
@@ -416,7 +408,7 @@ kable(data.frame(Model=model.names, AIC=c(AIC(model.fl), AIC(model.interaction),
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
-The quadratic model has the lowest AIC among the three models. It implies that the quadratic model has the smallest prediction error in general.
+The quadratic model (Model 3) has the lowest AIC among the three models. It implies that the quadratic model has the smallest prediction error in general.
 
 
 
@@ -481,7 +473,11 @@ row.names(pred.df) <- NULL
 kable(pred.df)  %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
+
 Figure ?: Prediction Intervals and Errors for June and July 2022 for All Three Models.
+
+
+The model 2 is very far off with its predictions. The more complicated models are more conservative, and has wide prediction intervals.
 
 
 
@@ -515,23 +511,39 @@ ggplot(historical, aes(Date, text="Date (monthly)")) +
   )
 ```
 
-Based on the 
+Model 1 is a simple model, which failed to capture the significance of most predictor variables, and relied mostly on autocorrelation for its predictions. Model 2 is a good candidate in terms of RMSE, but appears to be too sensitive to changes in the interest rate, and makes poor forecasts. Model 3 is most favorable in terms of improved significance of the predictor variables over the other models, the lowest AIC. It makes sensible forecast results for June and July 2022. Thus, we conclude that Model 3 best models the market behavior regarding to NHPI.
 
 
 
 ## Conclusion
 
-TODO: Which was the most significant predictor? The government can directly control the interest rate, and immigration. It can also affect average earnings to some degree. Which one would be the best way to lower housing price if political considerations were not a concern? Can we predict the price trend in the future based on the Bank of Canada's recent decisions to increase the interest rate?
+The best model is Model 3:
 
-When adjusted for CPI and earnings, immigration and the interest rate seem to affect the NHPI in the opposite directions that they are typically associated with in the literature. High immigration lowers NHPI, and high interest rate is associated with high NHPI. The population increase due to immigration is the least significant predictor of NHPI in our model. 
+$$y = -173.47101   -6.41943 x_1   +2.01656 x_2  -0.00005 x_3   +0.20251  x_4  +0.89882 x_5  -0.00127 x_6$$,
+
+where $x_5$ is $x_1^2$, and $x_6$ is the interaction between $x_3$ and $x_4$.
+
+The most significant predictors of NHPI are CPI and employee earnings by far. Their significance implies that general income and affordability of goods form the baseline for the housing market. The number of recent immigrants is apparently the least significant factor, but it may be due to the poor quality of this data. Provided more accurate monthly data on immigration, the significance of immigration might increase.
+
+
+The analysis yielded some unexpected results regarding the effects of interest rates and immigration. When adjusted for CPI and earnings, immigration and the interest rate seem to affect the NHPI in the opposite directions that they are typically associated with in the literature. High immigration lowers NHPI, and high interest rate is associated with high NHPI. Simply limiting immigration may not result in lower housing price.
+
+
+The significant of mortgage rate is difficult to interpret. The bank rate set by the Bank of Canada essentially have a bidirectionally causal relationship with housing price, and indirectly dictates mortgage rates. Thus, the effects of interest rates on the Canadian housing market is much more subtle, and hard to capture. Our quadratic model (Model 3) shows that the 5-year mortgage rate affect NHPI most negatively at near its historic low of `r round(interest.at.min, 3)` %, further suggesting the subtlety of the effects of interest rates on the housing market. Therefore, it may be dangerous to assume that the rising housing costs can be simply addressed by hiking interest rates to a very high value. If other factors such as inflation stays out of control, high interest rates could further exacerbate the housing crisis by driving cash flow towards the housing market to protect assets against inflation.
+
+
+The coefficient for the interaction between earnings and CPI is negative, which means the positive impact of earnings and CPI on NHPI is attenuated when these values changes in the same direction. In other words, if changes in average wage stay in parity with CPI, housing prices tend to be a little lower. Thus, addressing the longstanding gap between wage increase and inflation may be a key step to lower the current rampant housing price.
+
 
 
 
 ## References
 
+Durbin, J.; Watson, G. S. (1971). "Testing for serial correlation in least squares regression.III". Biometrika. 58 (1): 1–19. doi:10.2307/2334313
+
 Newey, Whitney K; West, Kenneth D (1987). "A Simple, Positive Semi-definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix" (PDF). Econometrica. 55 (3): 703–708. doi:10.2307/1913610. JSTOR 1913610.
 
-Durbin, J.; Watson, G. S. (1971). "Testing for serial correlation in least squares regression.III". Biometrika. 58 (1): 1–19. doi:10.2307/2334313
+RBC-Pembina Location Matter series(2013). "Understanding the factors affecting home prices in the GTA.", https://www.pembina.org/
 
 Statistics Canada. Table 10-10-0122-01  Financial market statistics, last Wednesday unless otherwise stated, Bank of Canada 
 https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1010012201
