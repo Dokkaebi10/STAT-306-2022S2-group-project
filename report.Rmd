@@ -3,7 +3,8 @@ title: "Group Project"
 author: "A3"
 date: "2022-08-03"
 output:
-  pdf_document: default
+  pdf_document: 
+    fig_height: 4
   html_document:
     df_print: paged
 ---
@@ -40,6 +41,12 @@ With increasingly unaffordable housing having become a chronic social issue in C
 | Average Weekly Earnings ($x_3$) | Average weekly earnings for all employees in Canada in Canadian dollar per week. | CAD/week |
 | Consumer Price Index ($x_4$) | Indicator for changes in consumer prices of all goods and services experienced by Canadians. The time base is the period for which the CPI equals 100; currently this is the year 2002. | -        |
 
+
+
+
+
+
+
 ## Analysis
 
 ``` {r,echo=FALSE, warning=FALSE}
@@ -52,30 +59,50 @@ dataset$Date <- NULL
 
 
 ```{r, echo=FALSE}
-plot(date, dataset$NHPI, main="Line graph of Monthly NHPI",
+plot(date, dataset$NHPI, # main="Line graph of Monthly NHPI",
   xlab="Date", ylab="NHPI", type = 'l',
   )
 ```
-```{r, echo=FALSE}
-plot(dataset$CPI, dataset$NHPI, main="Scatterplot of NHPI against CPI", 
-  xlab="CPI", ylab="NHPI",
-  )
-```
 
-```{r, echo=FALSE}
-plot(date, dataset$CPI, main="CPI Over Time",
+
+```{r, echo=FALSE, fig.height=10}
+par(mfrow=c(4,2))
+
+plot(date, dataset$CPI, # main="CPI Over Time",
   ylab="CPI", xlab="Time (monthly)", type = "l"
   )
-```
 
+plot(dataset$CPI, dataset$NHPI, # main="Scatterplot of NHPI against CPI", 
+  xlab="CPI", ylab="NHPI",
+  )
 
+plot(date, dataset$Interest, # main="5-Year Mortgage Rate Over Time",
+  ylab="Mortgage Rate (%)", xlab="Time (monthly)", type = "l"
+  )
 
-
-```{r, echo=FALSE}
-plot(dataset$Interest, dataset$NHPI, main="Scatterplot of NHPI against 5-Year Mortgage Rate",
+plot(dataset$Interest, dataset$NHPI, # main="Scatterplot of NHPI against 5-Year Mortgage Rate",
   xlab="Mortgage Rate (%)", ylab="NHPI",
   )
+
+plot(date, dataset$Immigrants, # main="Population Increase Due to Immigration between Preceding Two years",
+  ylab="Immigrants", xlab="Time (monthly)", type = "o"
+  )
+
+plot(dataset$Immigrants, dataset$NHPI, # main="Scatterplot of NHPI against Population Growth due to Immigration", 
+  xlab="Immigrants (persons)", ylab="NHPI",
+  )
+
+plot(date, dataset$Earnings, # main="Average Weekly Employee Earnings Over Time",
+  ylab="Average Weekly Employee Earnings", xlab="Time (monthly)", type = "o"
+  )
+
+plot(dataset$Earnings, dataset$NHPI, # main="Scatterplot of NHPI against Average Weekly Employee Earnings",
+  xlab="Average Weekly Employee Earnings", ylab="NHPI",
+  )
 ```
+
+
+
 
 It seems like a quadratic curve centered around 7. Defend it based on the correlations against NHPI as well.
 
@@ -93,9 +120,7 @@ Table ?: Correlation between NHPI and Different Transformations of Interest
 
 
 ```{r, echo=FALSE}
-plot(date, dataset$Interest, main="5-Year Mortgage Rate Over Time",
-  ylab="Mortgage Rate (%)", xlab="Time (monthly)", type = "l"
-  )
+par(mfrow=c(1,2))
 ```
 
 Because interest rates are mostly set by the Bank of Canada, the changes appear somewhat erratic.
@@ -112,35 +137,22 @@ Because interest rates are mostly set by the Bank of Canada, the changes appear 
 
 
 ```{r, echo=FALSE}
-plot(dataset$Immigrants, dataset$NHPI, main="Scatterplot of NHPI against Population Growth due to Immigration", 
-  xlab="Population Growth due to Immigration between Two Preceding Calendar Years", ylab="NHPI",
-  )
+par(mfrow=c(1,2))
 ```
 
+Figure ?: NHPI vs. Population Increase Due to Immigration between Preceding Two years (left), and Imputed Monthly Population Increase Due to Immigration between Preceding Two years.
 
-```{r, echo=FALSE}
-plot(date, dataset$Immigrants, main="Population Increase Due to Immigrations between Preceding Two years",
-  ylab="Immigrants", xlab="Time (monthly)", type = "l"
-  )
-```
+
 
 Due to the lack of monthly data on immigration provided by Statistics Canada, the monthly data was imputed by applying the yearly data flatly across calendar years. The predictor variable itself doesn't have a strong linear pattern, but seems to have been generally increasing over the last two decades.
 
 
 ```{r, echo=FALSE}
-plot(dataset$Earnings, dataset$NHPI, main="Scatterplot of NHPI against Average Weekly Employee Earnings",
-  xlab="Average Weekly Employee Earnings", ylab="NHPI",
-  )
+par(mfrow=c(1,2))
 ```
 
 We observe a sudden jump in the average weekly employee earnings. The jump happened in March 2020, and is likely due to the pandemic. 
 
-
-```{r, echo=FALSE}
-plot(date, dataset$Earnings, main="Average Weekly Employee Earnings Over Time",
-  ylab="Average Weekly Employee Earnings", xlab="Time (monthly)", type = "o"
-  )
-```
 
 
 ```{r, echo=FALSE}
@@ -148,12 +160,16 @@ plot(date, dataset$Earnings, main="Average Weekly Employee Earnings Over Time",
 
 ```
 
+
+
 ### Collinearity
 
 ```{r, echo=FALSE, echo=FALSE}
 # plot(dataset)
 ggpairs(data = dataset, cardinality_threshold=NULL)
 ```
+
+
 
 ```{r, echo=FALSE}
 model.fl <- lm(NHPI ~ ., dataset)
@@ -307,24 +323,28 @@ The predictor variables remain significant even after the correction. The lag is
 
 
 ```{r, echo=FALSE}
-plot(dataset$NHPI, model.fl$residuals, main="Residual plot for fully linear model",
+par(mfrow=c(1,3))
+
+
+plot(dataset$NHPI, model.fl$residuals, main="Model 1",
+  xlab="Fitted Values", ylab="Residuals")
+
+
+plot(dataset$NHPI, model.interaction$residuals, main="Model 2",
+  xlab="Fitted Values", ylab="Residuals")
+
+
+plot(dataset$NHPI, model.quad$residuals, main="Model 3",
   xlab="Fitted Values", ylab="Residuals")
 ```
 
+Figure ?: Residual Plots for Models
 
-```{r, echo=FALSE}
-plot(dataset$NHPI, model.interaction$residuals, main="Residual plot for model with interaction",
-  xlab="Fitted Values", ylab="Residuals")
-```
 
-```{r, echo=FALSE}
-plot(dataset$NHPI, model.quad$residuals, main="Residual plot for quadratic model with interaction",
-  xlab="Fitted Values", ylab="Residuals")
-```
 
 ```{r, echo=FALSE}
 ggplot(dataset, aes(date, text="Date (monthly)")) + 
-  ggtitle("Residuals over Time") + theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("") + theme(plot.title = element_text(hjust = 0.5)) +
   geom_hline(yintercept=0) +
   geom_line(aes(y = model.fl$residuals, colour = "Fully Linear")) + 
   geom_line(aes(y = model.interaction$residuals, colour = "With Interaction")) + 
@@ -342,27 +362,24 @@ There seems to be patterns in residuals to the autorrelation in the form of a se
 
 
 ```{r, echo=FALSE}
-qqnorm(model.fl$residuals, frame = FALSE)
+par(mfrow=c(1,3))
+
+qqnorm(model.fl$residuals, frame = FALSE, main="Model 1")
 qqline(model.fl$residuals, col = "steelblue")
 
-```
 
-The error distribution of the fully linear model is light-tailed, and the normality-of-errors assumption may not hold. While The simplicity of the model is a positive attribute, the model is too light-tailed on the right side, and undermines the model's value for making forecasts.
-
-
-```{r, echo=FALSE}
-qqnorm(model.interaction$residuals, frame = FALSE)
+qqnorm(model.interaction$residuals, frame = FALSE, main="Model 2")
 qqline(model.interaction$residuals, col = "steelblue")
 
-```
 
-
-
-```{r, echo=FALSE}
-qqnorm(model.quad$residuals, frame = FALSE)
+qqnorm(model.quad$residuals, frame = FALSE, main="Model 3")
 qqline(model.quad$residuals, col = "steelblue")
 
 ```
+
+
+The error distribution of the fully linear model is light-tailed, and the normality-of-errors assumption may not hold. While The simplicity of the model is a positive attribute, the model is too light-tailed on the right side, and undermines the model's value for making forecasts.
+
 
 The distribution of the residual is heavy-tailed, but not extremely so. The normal error assumption seems to mostly hold.
 
@@ -470,7 +487,7 @@ row.names(pred.df) <- NULL
 
 
 
-```{r}
+```{r, echo=FALSE}
 kable(pred.df)  %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
@@ -496,7 +513,7 @@ interest.at.min <- -b_Interest / (2 * b_Interest2)
 ```
 
 
-The model suggests the 5-year mortgage rate to achieve the minimum NHPI is `r round(interest.at.min, 3)` % if all other predictor variables are held constant. The positive correlation is unintuitive as home price is expected to continue to decline with higher interest rates. This does not necessarily mean the model is biased. There have been periods of rapidly rising NHPI through interest hikes in the 80's and 2000's. **TODO: refer to the figure below.**  However, the mortgage rate at the partial minimum is close to the historic low of `r min(dataset$Interest)`%, and may imply a bias due to a limited range of interest rates in the data. We should also consider the fact that interest rates are largely controlled by the Bank of Canada, and are raised in response rising costs including housing costs. **TODO: Please find a reference for this.** Furthermore, the effects of raising interest rates to housing cost may come with significant delays. Hence, high interest rates past a threshold may be associated with high home price, and our quadratic model may reflect such tendencies. In future studies, we could explore the possible causal effect of interest rates on house prices by introducing delays to interest rates.
+The model suggests the 5-year mortgage rate to achieve the minimum NHPI is `r round(interest.at.min, 3)` % if all other predictor variables are held constant. The positive correlation is unintuitive as home prices is expected to continue to decline with higher interest rates. This does not necessarily mean the model is biased. There have been periods of rapidly rising NHPI through interest hikes in the 80's and 2000's. **TODO: refer to the figure below.**  However, the mortgage rate at the partial minimum is close to the historic low of `r min(dataset$Interest)`%, and may imply a bias due to a limited range of interest rates in the data. We should also consider the fact that interest rates are largely controlled by the Bank of Canada, and are raised in response rising costs including housing costs. **TODO: Please find a reference for this.** Furthermore, the effects of raising interest rates to housing cost may come with significant delays. Hence, high interest rates past a threshold may be associated with high home prices, and our quadratic model may reflect such tendencies. In future studies, we could explore the possible causal effect of interest rates on house prices by introducing delays to interest rates.
 
 
 ```{r, echo=FALSE}
