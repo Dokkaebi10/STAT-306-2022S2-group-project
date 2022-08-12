@@ -1,8 +1,9 @@
 ---
 title: "Group Project"
 author: "A3"
-date: '2022-08-03'
+date: "2022-08-03"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
 ---
@@ -25,7 +26,7 @@ library(gt)
 ## Introduction
 
 
-With increasingly unaffordable housing having become a chronic social issue in Canada over the last two decades, the factors that contribute to rising housing cost have been in focus, and hotly debated among policy makers and voters alike. Here, we would like to measure the relative importance of the commonly referred contributors of rising cost of housing: interest rate, immigration, earnings increases, and general increase in consumer prices [[3]](#references). We will explore and quantify the significance of the predictors or drivers of rising housing price. Furthermore, by better understanding possible causes and predictors of the present day problem, we aim to better inform policymakers and their electorate on the most important issues underlying the unaffordable housing markets of the metropolitan Canada.
+With increasingly unaffordable housing having become a chronic social issue in Canada over the last two decades, the factors that contribute to rising housing cost have been in focus, and hotly debated among policy makers and voters alike. Here, we would like to measure the relative importance of the commonly referred contributors of rising cost of housing: interest rate, immigration, earnings increases, and general increase in consumer prices [[3]](#references). We will explore and quantify the significance of the predictors or drivers of rising housing prices. Furthermore, by better understanding possible causes and predictors of the present day problem, we aim to better inform policymakers and their electorate on the most important issues underlying the unaffordable housing markets of the metropolitan Canada.
 
 
 
@@ -162,7 +163,7 @@ kable(vif) %>%
 ```
 
 
-We measured the collinearity in the dataset with VIF. The VIFs of CPI and Earnings is larger than 10, and therefore, the collinearity between them may be a problem.
+We measured the collinearity in the dataset with VIF (Variance Inflation Factor). The VIFs of CPI and Earnings is larger than 10, and therefore, the collinearity between them may be a problem.
 
 
 ### Transformation
@@ -192,17 +193,17 @@ kable(best_subsets$which) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 ```{r, echo=FALSE}
-model.fl.df <- data.frame(p=seq(0,length(best_subsets$rsq)-1,1), rsq=best_subsets$rsq, adjr2=best_subsets$adjr2, cp=best_subsets$cp)
-colnames(model.fl.df) <- c("p", "$r^2$", "$r^2_{adj}$", "$C_p$")
-kable(model.fl.df) %>%
+model.quad.df <- data.frame(p=seq(1,length(best_subsets$rsq),1), rsq=best_subsets$rsq, adjr2=best_subsets$adjr2, cp=best_subsets$cp)
+colnames(model.quad.df) <- c("p", "$r^2$", "$r^2_{adj}$", "$C_p$")
+kable(model.quad.df) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
-We chose the model with 6 predictor variables including the interaction term and the quadratic term because $C_5$ is very close to the corresponding value of $p$, and the model therefore appears the least unbiased.
+We chose the model with 6 predictor variables including the interaction term and the quadratic term because $C_6$ is very close to the corresponding value of $p$, and the model therefore appears the least unbiased.
 
 
 
-We created 3 candidate models. full linear Model 1, Model 2 with an interaction term between CPI and average weekly earnings, and Model 3 with the same interaction term and a quadratic term for the mortgage rate. The quadratic term was added based on Figure 2, and the residual plots of the fully linear model, and the model with an interaction term.
+We created 3 candidate models. full linear **Model 1**, **Model 2** with an interaction term between CPI and average weekly earnings, and **Model 3** with the same interaction term and a quadratic term for the mortgage rate. The quadratic term was added based on Figure 2, and the residual plots of the fully linear model, and the model with an interaction term.
 
 ```{r, echo=FALSE}
 model.fl <- lm(NHPI ~ ., dataset)
@@ -529,13 +530,13 @@ $$y = -173.47101   -6.41943 x_1   +2.01656 x_2  -0.00005 x_3   +0.20251  x_4  +0
 The most significant predictors of NHPI are CPI and employee earnings by far. Their significance implies that general income and affordability of goods form the baseline for the housing market. The number of recent immigrants is apparently the least significant factor, but it may be due to the poor quality of this data. Provided more accurate monthly data on immigration, the significance of immigration might increase.
 
 
-The analysis yielded some unexpected results regarding the effects of interest rates and immigration. When adjusted for CPI and earnings, immigration and the interest rate seem to affect the NHPI in the opposite directions that they are typically associated with in the literature. High immigration lowers NHPI, and high interest rate is associated with high NHPI. Simply limiting immigration may not result in lower housing price.
+The analysis yielded some unexpected results regarding the effects of interest rates and immigration. When adjusted for CPI and earnings, immigration and the interest rate seem to affect the NHPI in the opposite directions that they are typically associated with in the literature. High immigration lowers NHPI, and high interest rate is associated with high NHPI. Simply limiting immigration may not result in lower housing prices.
 
 
-The significant of mortgage rate is difficult to interpret. The bank rate set by the Bank of Canada essentially have a bidirectionally causal relationship with housing price, and indirectly dictates mortgage rates. Thus, the effects of interest rates on the Canadian housing market is much more subtle, and hard to capture. Our quadratic model (Model 3) shows that the 5-year mortgage rate affect NHPI most negatively at near its historic low of `r round(interest.at.min, 3)` %, further suggesting the subtlety of the effects of interest rates on the housing market. Therefore, it may be dangerous to assume that the rising housing costs can be simply addressed by hiking interest rates to a very high value. If other factors such as inflation stays out of control, high interest rates could further exacerbate the housing crisis by driving cash flow towards the housing market to protect assets against inflation.
+The significance of the mortgage rate is difficult to interpret. The bank rate set by the Bank of Canada essentially have a bidirectionally causal relationship with housing prices, and indirectly dictates mortgage rates. Thus, the effects of interest rates on the Canadian housing market is much more subtle, and hard to capture. Our quadratic model (Model 3) shows that the 5-year mortgage rate affects NHPI most negatively at near its historic low of `r round(interest.at.min, 3)` %, further suggesting the subtlety of the effects of interest rates on the housing market. Therefore, it may be dangerous to assume that the rising housing costs can be simply addressed by hiking interest rates to a very high value. If other factors such as inflation stays out of control, high interest rates could further exacerbate the housing crisis by driving cash flow towards the housing market to protect assets against inflation.
 
 
-The coefficient for the interaction between earnings and CPI is negative, which means the positive impact of earnings and CPI on NHPI is attenuated when these values changes in the same direction. In other words, if changes in average wage stay in parity with CPI, housing prices tend to be a little lower. Thus, addressing the longstanding gap between wage increase and inflation may be a key step to lower the current rampant housing price.
+The coefficient for the interaction between earnings and CPI is negative, which means the positive impact of earnings and CPI on NHPI is attenuated when these values change in the same direction. In other words, if changes in average wage stay in parity with CPI, housing prices tend to be a little lower. Thus, addressing the longstanding gap between wage increase and inflation may be a key step to lower the current rampant housing prices.
 
 
 
