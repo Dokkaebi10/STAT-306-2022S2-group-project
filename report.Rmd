@@ -519,9 +519,9 @@ Model 1 is a simple model, which failed to capture the significance of most pred
 
 The best model is Model 3:
 
-$$y = -173.47101   -6.41943 x_1   +2.01656 x_2  -0.00005 x_3   +0.20251  x_4  +0.89882 x_5  -0.00127 x_6$$,
+$$y = -173.47101   -6.41943 x_1   +2.01656 x_2  -0.00005 x_3   +0.20251  x_4  +0.89882 x_5  -0.00127 x_6$$
 
-where $x_5$ is $x_1^2$, and $x_6$ is the interaction between $x_3$ and $x_4$.
+, where $x_5$ is $x_1^2$, and $x_6$ is the interaction between $x_3$ and $x_4$.
 
 The most significant predictors of NHPI are CPI and employee earnings by far. Their significance implies that general income and affordability of goods form the baseline for the housing market. The number of recent immigrants is apparently the least significant factor, but it may be due to the poor quality of this data. Provided more accurate monthly data on immigration, the significance of immigration might increase.
 
