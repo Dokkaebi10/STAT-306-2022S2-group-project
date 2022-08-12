@@ -25,14 +25,14 @@ library(gt)
 ## Introduction
 
 
-With increasingly unaffordable housing having become a chronic social issue in Canada over the last two decades, the factors that contribute to rising housing cost have been in focus, and hotly debated among policy makers and voters alike. Here, we would like to measure the relative importance of the commonly referred contributors of rising cost of housing: interest rate, immigration, earnings increases, and general increase in consumer prices [[3]]. We will explore and quantify the significance of the predictors or drivers of rising housing price. Furthermore, by better understanding possible causes and predictors of the present day problem, we aim to better inform policymakers and their electorate on the most important issues underlying the unaffordable housing markets of the metropolitan Canada.
+With increasingly unaffordable housing having become a chronic social issue in Canada over the last two decades, the factors that contribute to rising housing cost have been in focus, and hotly debated among policy makers and voters alike. Here, we would like to measure the relative importance of the commonly referred contributors of rising cost of housing: interest rate, immigration, earnings increases, and general increase in consumer prices [[3]](#references). We will explore and quantify the significance of the predictors or drivers of rising housing price. Furthermore, by better understanding possible causes and predictors of the present day problem, we aim to better inform policymakers and their electorate on the most important issues underlying the unaffordable housing markets of the metropolitan Canada.
 
 
 
 ### Variables
 
 |     Name    |                                                               Description                                                                  |   Unit   |
-|:--------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------:|:--------:|
+|:------------------------------------------------------:|:--------------------------------------------------------------------------------------------------:|:--------:|
 | New Housing Price Index (y)     | Monthly series that measure changes over time of the selling prices of new residential houses sold by builders in the Canadian metropolitan areas. The reference period is December 2006, for which the index value is set to 100. | -        |
 | Mortgage Rate ($x_1$) | Average annual mortgage lending rate for 5-year term. | %        |
 | Immigrants ($x_2$) | Population growth due to the total number of immigrants to Canada between the preceding two calendar years. Immigration, Refugees and Citizenship Canada does not make immigration data with higher frequency than yearly. | -        |
