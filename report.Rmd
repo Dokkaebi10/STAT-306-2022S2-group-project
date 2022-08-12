@@ -82,6 +82,7 @@ It seems like a quadratic curve centered around 7. Defend it based on the correl
 |:----------------:|:----------------------:|
 |    $\text{Interest}$    |  `r cor(dataset$NHPI, dataset$Interest)`          |
 | $log(\text{Interest})$  |  `r cor(dataset$NHPI, log(dataset$Interest))`     |
+| $(\text{Interest})^-1$ |  `r cor(dataset$NHPI, (dataset$Interest)^{-1})`    |
 | $\text{Interest}^2$     |  `r cor(dataset$NHPI, dataset$Interest^2)`        |
 | $(\text{Interest}-7)^2$ |  `r cor(dataset$NHPI, (dataset$Interest-7)^2)`    |
 
@@ -122,7 +123,7 @@ plot(date, dataset$Immigrants, main="Population Increase Due to Immigrations bet
   )
 ```
 
-Due to the lack of monthly data on immigration provided by Statistics Canada, the data was imputed by applying the yearly data flatly across calendar years. The predictor variable itself doesn't have a strong linear pattern, but seems to have been generally increasing over the last two decades.
+Due to the lack of monthly data on immigration provided by Statistics Canada, the monthly data was imputed by applying the yearly data flatly across calendar years. The predictor variable itself doesn't have a strong linear pattern, but seems to have been generally increasing over the last two decades.
 
 
 ```{r, echo=FALSE}
@@ -148,8 +149,6 @@ plot(date, dataset$Earnings, main="Average Weekly Employee Earnings Over Time",
 
 ### Collinearity
 
-We measured the collinearity with VIF.
-
 ```{r, echo=FALSE, echo=FALSE}
 # plot(dataset)
 ggpairs(data = dataset, cardinality_threshold=NULL)
@@ -162,7 +161,8 @@ kable(vif) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
-The VIFs CPI and Earnings is larger than 10, and therefore, the collinearity between them may be a problem.
+
+We measured the collinearity in the dataset with VIF. The VIFs of CPI and Earnings is larger than 10, and therefore, the collinearity between them may be a problem.
 
 
 ### Transformation
@@ -395,7 +395,7 @@ kable(rmse) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F)
 ```
 
-The model with an interaction term seems to perform the best. However, our data is a time series, and the holdout sets necessarily include the most recent data, which tend to be the most important data points in time series models. Furthermore, because the most recent data involves the highly unusually period of the COVID-19 pandemic, it is unlikely that we can build a strong model while excluding the most recent 20% .
+The model with an interaction term seems to perform the best. However, our data is a time series, and the holdout sets necessarily include the most recent data, which tend to be the most important data points in time series models. Furthermore, because the most recent data involves the highly unusual period of the COVID-19 pandemic, it is unlikely that we can build a strong model while excluding the most recent 20% .
 
 
 
@@ -477,7 +477,7 @@ kable(pred.df)  %>%
 Figure ?: Prediction Intervals and Errors for June and July 2022 for All Three Models.
 
 
-The model 2 is very far off with its predictions. The more complicated models are more conservative, and has wide prediction intervals.
+The model 2 is very far off with its predictions. The more complicated models are more conservative, and have wide prediction intervals.
 
 
 
@@ -493,7 +493,10 @@ b_Interest2 <- model.quad$coefficients['I(Interest^2)']
 
 interest.at.min <- -b_Interest / (2 * b_Interest2)
 ```
-The model suggests the 5-year mortgage rate to achieve the minimum NHPI is `r round(interest.at.min, 3)` % if all other predictor variables are held constant. The positive correlation is unintuitive as home price is expected to continue to decline with higher interest rates. This does not necessarily mean the model is biased. There have been periods of rapidly rising NHPI through interest hikes in the 80's and 2000's. **TODO: refer to the figure below.**  However, the mortgage rate at the partial minimum is close to the historic low of `r min(dataset$Interest)`%, and may imply a bias due to a limited range of interest rates in the data.  We should also consider the fact that interest rates are largely controlled by the Bank of Canada, and are raised in response rising costs including housing costs. **TODO: Please find a reference for this.** Furthermore, the effects of raising interest rates to housing cost may come with significant delays. Hence, high interest rates past a threshold may be associated with high home price, and our quadratic model may reflect such tendencies. In future studies, we could explore the possible causal effect of interest rates on housing prices by introducing delays to interest rates.
+
+
+The model suggests the 5-year mortgage rate to achieve the minimum NHPI is `r round(interest.at.min, 3)` % if all other predictor variables are held constant. The positive correlation is unintuitive as home price is expected to continue to decline with higher interest rates. This does not necessarily mean the model is biased. There have been periods of rapidly rising NHPI through interest hikes in the 80's and 2000's. **TODO: refer to the figure below.**  However, the mortgage rate at the partial minimum is close to the historic low of `r min(dataset$Interest)`%, and may imply a bias due to a limited range of interest rates in the data. We should also consider the fact that interest rates are largely controlled by the Bank of Canada, and are raised in response rising costs including housing costs. **TODO: Please find a reference for this.** Furthermore, the effects of raising interest rates to housing cost may come with significant delays. Hence, high interest rates past a threshold may be associated with high home price, and our quadratic model may reflect such tendencies. In future studies, we could explore the possible causal effect of interest rates on house prices by introducing delays to interest rates.
+
 
 ```{r, echo=FALSE}
 historical <- read.csv('historical.csv')
@@ -511,7 +514,7 @@ ggplot(historical, aes(Date, text="Date (monthly)")) +
   )
 ```
 
-Model 1 is a simple model, which failed to capture the significance of most predictor variables, and relied mostly on autocorrelation for its predictions. Model 2 is a good candidate in terms of RMSE, but appears to be too sensitive to changes in the interest rate, and makes poor forecasts. Model 3 is most favorable in terms of improved significance of the predictor variables over the other models, the lowest AIC. It makes sensible forecast results for June and July 2022. Thus, we conclude that Model 3 best models the market behavior regarding to NHPI.
+Model 1 is a simple model, which failed to capture the significance of most predictor variables, and relied mostly on autocorrelation for its predictions. Model 2 is a good candidate in terms of RMSE, but appears to be too sensitive to changes in the interest rate, and makes poor forecasts. Model 3 is most favorable in terms of improved significance of the predictor variables over the other models, the lowest AIC. It makes sensible forecast results for June and July 2022. Thus, we conclude that Model 3 best models the market behavior in regard to NHPI.
 
 
 
