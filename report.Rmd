@@ -308,7 +308,7 @@ kable(nw.quad.coef) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F, latex_options = "HOLD_position")
 ```
 \begin{center}
-Table 10: Newey-West Standard Errors for Model 1
+Table 10: Newey-West Standard Errors for Model 3
 \end{center}
 
 The predictor variables remain significant even after the correction. The lag is set at 12 months. The significance of $\text{Interest}$ and $\text{Interest}^2$ is individually quite low, but cannot be discounted since the linear and quadratic terms may still be significant when combined.
