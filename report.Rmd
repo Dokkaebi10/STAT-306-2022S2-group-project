@@ -37,13 +37,14 @@ With the increase in unaffordable housing, it has become a chronic social issue 
 |     Name    |                                                               Description                                                                  |   Unit   |
 |:------------------------------------------------------:|:--------------------------------------------------------------------------------------------------:|:--------:|
 | New Housing Price Index (y)     | Monthly series that measure changes over time of the selling prices of new residential houses sold by builders in the Canadian metropolitan areas. The reference period is December 2006, for which the index value is set to 100. | -        |
-| Mortgage Rate ($x_1$) | Average annual mortgage lending rate for 5-year term. | %        |
+| Mortgage Rate ($x_1$) | Average annual mortgage lending rate for 5-year term. | %        | 
 | Immigrants ($x_2$) | Population growth due to the total number of immigrants to Canada between the preceding two calendar years. Immigration, Refugees and Citizenship Canada does not make immigration data with higher frequency than yearly. | -        |
 | Average Weekly Earnings ($x_3$) | Average weekly earnings for all employees in Canada in Canadian dollar per week. | CAD/week |
 | Consumer Price Index ($x_4$) | Indicator for changes in consumer prices of all goods and services experienced by Canadians. The time base is the period for which the CPI equals 100; currently this is the year 2002. | -        |
 
-Figure 1: Variables and Data Descriptions
-
+\begin{center}
+Table 1: Variables and Data Descriptions
+\end{center}
 
 
 ## 2    Analysis
@@ -58,16 +59,16 @@ dataset$Date <- NULL
 ```
 
 
-
 ```{r, echo=FALSE}
 plot(date, dataset$NHPI, # main="Line graph of Monthly NHPI",
   xlab="Date", ylab="NHPI", type = 'l',
   )
 ```
+\begin{center}
+Figure 1: Line Graph of Monthly NHPI
+\end{center}
 
-Figure 2: Line Graph of Monthly NHPI
-
-```{r, echo=FALSE, fig.height=9}
+```{r, echo=FALSE, fig.height=8}
 par(mfrow=c(4,2))
 
 plot(date, dataset$CPI, # main="CPI Over Time",
@@ -105,8 +106,10 @@ plot(dataset$Earnings, dataset$NHPI, # main="Scatterplot of NHPI against Average
 
 par(mfrow=c(1,1))
 ```
+\begin{center}
+Figure 2: NHPI vs. Population Increase Due to Immigration between Preceding Two years (left), and Imputed Monthly Population Increase Due to Immigration between Preceding Two years.
+\end{center}
 
-Figure 3: NHPI vs. Population Increase Due to Immigration between Preceding Two years (left), and Imputed Monthly Population Increase Due to Immigration between Preceding Two years.
 
 
 
@@ -118,8 +121,9 @@ Figure 3: NHPI vs. Population Increase Due to Immigration between Preceding Two 
 | $\text{Interest}^2$     |  `r cor(dataset$NHPI, dataset$Interest^2)`        |
 | $(\text{Interest}-7)^2$ |  `r cor(dataset$NHPI, (dataset$Interest-7)^2)`    |
 
-Table 4: Correlation between NHPI and Different Transformations of Interest
-
+\begin{center}
+Table 2: Correlation between NHPI and Different Transformations of Interest
+\end{center}
 
 
 Because interest rates are mostly set by the Bank of Canada, the changes appear somewhat erratic. It seems like a quadratic curve centered around 7. Due to the lack of monthly data on immigration provided by Statistics Canada, the monthly data was imputed by applying the yearly data flatly across calendar years. The predictor variable itself doesn't have a strong linear pattern, but seems to have been generally increasing over the last two decades.
@@ -139,12 +143,13 @@ We observe a sudden jump in the average weekly employee earnings. The jump happe
 
 ## 2.2   Collinearity
 
-```{r, echo=FALSE, echo=FALSE}
+```{r, echo=FALSE, echo=FALSE, fig.height = 5}
 # plot(dataset)
 ggpairs(data = dataset, cardinality_threshold=NULL)
 ```
-
-Figure 5: Scatterplot Matrix of Variables
+\begin{center}
+Figure 3: Scatterplot Matrix of Variables
+\end{center}
 
 ```{r, echo=FALSE}
 model.fl <- lm(NHPI ~ ., dataset)
@@ -152,8 +157,9 @@ vif <- data.frame(VIF=round(car::vif(model.fl),3))
 kable(vif) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F, latex_options = "HOLD_position")
 ```
-
-Figure 6: VIF
+\begin{center}
+Table 3: VIF
+\end{center}
 
 We measured the collinearity in the dataset with VIF (Variance Inflation Factor). The VIFs of CPI and Earnings is larger than 10, and therefore, the collinearity between them may be a problem.
 
@@ -173,13 +179,14 @@ subsets_models <- regsubsets(NHPI ~ . + CPI * Earnings + I(Interest^2), data = d
 best_subsets <- summary(subsets_models)
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.height=5}
 plot(best_subsets$cp, pch = 19, xlab = "Number of Variables", 
 		 ylab = "Cp")
 abline(0,1, col='red')
 ```
-
-Figure 7: Exhaustive Search
+\begin{center}
+Figure 4: Exhaustive Search
+\end{center}
 
 ```{r, echo=FALSE, results='hide'}
 kable(best_subsets$which) %>%
@@ -191,8 +198,9 @@ colnames(model.quad.df) <- c("p", "$r^2$", "$r^2_{adj}$", "$C_p$")
 kable(model.quad.df) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F, latex_options = "HOLD_position")
 ```
-
-Figure 8: Summary of Exhaustive Search Results
+\begin{center}
+Table 4: Summary of Exhaustive Search Results
+\end{center}
 
 We chose the model with 6 predictor variables including the interaction term and the quadratic term because $C_6$ is very close to the corresponding value of $p$, and the model therefore appears the least unbiased.
 
@@ -220,22 +228,25 @@ models <- list(
 kable(coef(summary(model.fl))) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F, latex_options = "HOLD_position")
 ```
-
-Figure 9: Model 1 Results
+\begin{center}
+Table 5: Model 1 Results
+\end{center}
 
 ```{r, echo=FALSE}
 kable(coef(summary(model.interaction))) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F, latex_options = "HOLD_position")
 ```
-
-Figure 10: Model 2 Results
+\begin{center}
+Table 6: Model 2 Results
+\end{center}
 
 ```{r, echo=FALSE}
 kable(coef(summary(model.quad))) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F, latex_options = "HOLD_position")
 ```
-
-Figure 11: Model 3 Results
+\begin{center}
+Table 7: Model 3 Results
+\end{center}
 
 The models appear excellent in terms of the significance of the predictor variables. However, they were based on a time series data, which is most likely serially correlated. Hence, we need to examine, and possibly correct for the possible autocorrelation in the data.
 
@@ -264,8 +275,9 @@ nw.fl.coef <- as.data.frame(coeftest(model.fl, vcov.=nw.fl)[, ])
 kable(nw.fl.coef) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F, latex_options = "HOLD_position")
 ``` 
-
-Figure 12: ...
+\begin{center}
+Table 8: Newey-West Standard Errors for Model 1
+\end{center}
 
 The significance of some of the variables appear much lower when corrected for autocorrelation, and most of them appear insignificant when corrected for serial correlation. This model is mostly based on the autocorrelation in the data.
 
@@ -278,8 +290,9 @@ nw.inter.coef <- as.data.frame(coeftest(model.interaction, vcov.=nw.inter)[, ])
 kable(nw.inter.coef) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F, latex_options = "HOLD_position")
 ```
-
-Figure 13: ...
+\begin{center}
+Table 9: Newey-West Standard Errors for Model 2
+\end{center}
 
 When the interaction term is included, the significance of the predictor variables are improved overall. The increased complexity of the model better captures the significance of the predictor variables and their interactions.
 
@@ -294,8 +307,9 @@ nw.quad.coef <- as.data.frame(coeftest(model.quad, vcov.=nw.quad)[, ])
 kable(nw.quad.coef) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F, latex_options = "HOLD_position")
 ```
-
-Figure 14: ...
+\begin{center}
+Table 10: Newey-West Standard Errors for Model 1
+\end{center}
 
 The predictor variables remain significant even after the correction. The lag is set at 12 months. The significance of $\text{Interest}$ and $\text{Interest}^2$ is individually quite low, but cannot be discounted since the linear and quadratic terms may still be significant when combined.
 
@@ -323,8 +337,9 @@ plot(dataset$NHPI, model.quad$residuals, main="Model 3",
 
 par(mfrow=c(1,1))
 ```
-
-Figure 15: Residual Plots for Models
+\begin{center}
+Figure 5: Residual Plots for Models
+\end{center}
 
 
 
@@ -339,8 +354,9 @@ ggplot(dataset, aes(date, text="Date (monthly)")) +
     "Residuals",
   )
 ```
-
-Figure 16: Residuals over Time of All Three Models. The lines show similar patterns to their respective residual plots.
+\begin{center}
+Figure 6: Residuals over Time of All Three Models. The lines show similar patterns to their respective residual plots.
+\end{center}
 
 
 There seems to be patterns in residuals to the autorrelation in the form of a serial correlation in the data. The continuous patterns seem to arise from the fact that our data is a time series, and do not necessarily imply lack of linearizability. Still, we cannot explain with all variance in NHPI with the predictors here due to rapid, artificial shifts in variables such interest rates, which can change drastically based on the whims of the central bank. We may need more variables and average-over-time transformations for a more complete model that accounts for sudden shifts.
@@ -363,8 +379,9 @@ qqline(model.quad$residuals, col = "steelblue")
 
 par(mfrow=c(1,1))
 ```
-
-Figure 17: Normal Q-Q Plots of All Three Models
+\begin{center}
+Figure 7: Normal Q-Q Plots of All Three Models
+\end{center}
 
 The error distribution of the fully linear model is light-tailed, and the normality-of-errors assumption may not hold. While The simplicity of the model is a positive attribute, the model is too light-tailed on the right side, and undermines the model's value for making forecasts.
 
@@ -400,8 +417,9 @@ rmse$RMSE[3] <- sqrt(sum((dataset$NHPI[-train] - predict(reg, dataset[-train,]))
 kable(rmse) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F, latex_options = "HOLD_position")
 ```
-
-Figure 18: RMSE of All Three Models
+\begin{center}
+Table 11: RMSE of All Three Models
+\end{center}
 
 The model with an interaction term seems to perform the best. However, our data is a time series, and the holdout sets necessarily include the most recent data, which tend to be the most important data points in time series models. Furthermore, because the most recent data involves the highly unusual period of the COVID-19 pandemic, it is unlikely that we can build a strong model while excluding the most recent 20% .
 
@@ -415,8 +433,9 @@ Because of the reasons discussed in the previous sections, tests using holdout s
 kable(data.frame(Model=model.names, AIC=c(AIC(model.fl), AIC(model.interaction), AIC(model.quad)))) %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F, latex_options = "HOLD_position")
 ```
-
-Figure 19: AIC of All Three Models
+\begin{center}
+Table 12: AIC of All Three Models
+\end{center}
 
 The quadratic model (Model 3) has the lowest AIC among the three models. It implies that the quadratic model has the smallest prediction error in general.
 
@@ -483,8 +502,9 @@ row.names(pred.df) <- NULL
 kable(pred.df)  %>%
   kable_styling(bootstrap_options = c("striped", "condensed"), full_width = F, latex_options = "HOLD_position")
 ```
-
-Figure 20: Prediction Intervals and Errors for June and July 2022 for All Three Models.
+\begin{center}
+Table 13: Prediction Intervals and Errors for June and July 2022 for All Three Models.
+\end{center}
 
 
 The model 2 is very far off with its predictions. The more complicated models are more conservative, and have wide prediction intervals.
@@ -523,8 +543,9 @@ ggplot(historical, aes(Date, text="Date (monthly)")) +
     sec.axis = sec_axis(~ . / 10, name = "5-Year Mortgage Rate (%)")
   )
 ```
-
-Figure 21: Historical NHPI and 5-Year Mortgage Rate.
+\begin{center}
+Figure 8: Historical NHPI and 5-Year Mortgage Rate
+\end{center}
 
 
 Model 1 is a simple model, which failed to capture the significance of most predictor variables, and relied mostly on autocorrelation for its predictions. Model 2 is a good candidate in terms of RMSE, but appears to be too sensitive to changes in the interest rate, and makes poor forecasts. Model 3 is most favorable in terms of improved significance of the predictor variables over the other models, the lowest AIC. It makes sensible forecast results for June and July 2022. Thus, we conclude that Model 3 best models the market behavior in regard to NHPI.
